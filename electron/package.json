@@ -1,0 +1,13 @@
+{
+  "name": "asciix",
+  "version": "1.0.0",
+  "main": "electron.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . ASCII-App --overwrite --platform=win32 --arch=x64 --out=dist"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-packager": "^17.0.0"
+  }
+}

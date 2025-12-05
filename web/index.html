@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AsciiX – Image to ASCII Art</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">AsciiX</h1>
+    <p class="subtitle">Convert your images into ASCII Art</p>
+
+    <div class="upload-box">
+      <input type="file" id="imageInput" accept="image/*">
+    </div>
+
+    <div class="buttons">
+      <button class="btn" onclick="generateASCII()">Convert to ASCII</button>
+      <button class="btn" onclick="generateCircle()">Circular ASCII</button>
+      <button class="btn btn-secondary" onclick="downloadTXT()">Download TXT</button>
+      <button class="btn btn-secondary" onclick="downloadPNG()">Download PNG</button>
+    </div>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,14 +1,34 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #1e1e1e;
+    --accent-color: #ff8800;
+    --card-bg: #f9f9f9;
+}
+
+body.dark {
+    --bg-color: #1e1e1e;
+    --text-color: #ff8800;
+    --accent-color: #ff8800;
+    --card-bg: #2e2e2e;
+}
+
 body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
     font-family: 'Courier New', monospace;
-    background-color: #1e1e1e;
-    color: #ff8800;
     margin: 0;
     padding: 0;
 }
 
+.theme-toggle {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+}
+
 .container {
     max-width: 900px;
-    margin: auto;
+    margin: 80px auto;
     padding: 20px;
 }
 
@@ -17,11 +37,11 @@ h1 {
     font-size: 3em;
 }
 
-.section {
-    margin-top: 30px;
-    background: #2e2e2e;
+.card {
+    background-color: var(--card-bg);
     padding: 20px;
     border-radius: 10px;
+    margin-bottom: 30px;
 }
 
 textarea {
@@ -29,31 +49,38 @@ textarea {
     height: 80px;
     font-family: monospace;
     font-size: 16px;
-    margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
-    border: none;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
 }
 
-select, input[type=file], button {
-    margin: 5px 0;
-    padding: 8px;
+input[type=file], select, button {
+    margin: 5px 5px 5px 0;
+    padding: 8px 12px;
+    font-size: 16px;
     border-radius: 5px;
     border: none;
-    font-size: 16px;
 }
 
 button {
-    cursor: pointer;
-    background-color: #ff8800;
-    color: #1e1e1e;
+    background-color: var(--accent-color);
+    color: var(--bg-color);
     font-weight: bold;
+    cursor: pointer;
 }
 
-pre {
-    background-color: #1e1e1e;
-    padding: 10px;
-    overflow-x: auto;
+.controls {
+    margin-bottom: 10px;
+}
+
+.output {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 15px;
+    border-radius: 5px;
     white-space: pre-wrap;
-    word-wrap: break-word;
+    font-family: monospace;
+    overflow-x: auto;
+    min-height: 150px;
 }

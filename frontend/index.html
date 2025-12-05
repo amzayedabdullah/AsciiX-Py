@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AsciiX - Ascii Art Generator Tool</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AsciiX - Ascii Generator</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>AsciiX</h1>
+<div class="theme-toggle">
+    <label>
+        <input type="checkbox" id="themeSwitch"> Dark Mode
+    </label>
+</div>
 
-        <div class="section">
-            <h2>Text to ASCII</h2>
-            <textarea id="textInput" placeholder="Enter text here"></textarea>
+<div class="container">
+    <h1>AsciiX - Ascii Generator</h1>
+
+    <!-- Text to ASCII -->
+    <section class="card">
+        <h2>Text to ASCII</h2>
+        <textarea id="textInput" placeholder="Enter text here..."></textarea>
+        <div class="controls">
             <select id="fontSelect">
                 <option value="standard">Standard</option>
                 <option value="block">Block</option>
                 <option value="slant">Slant</option>
                 <option value="big">Big</option>
             </select>
-            <button onclick="convertText()">Convert Text</button>
-            <pre id="asciiTextOutput"></pre>
+            <button onclick="convertText()">Convert</button>
+            <button onclick="downloadText()">Download</button>
         </div>
+        <div class="output" id="asciiTextOutput"></div>
+    </section>
 
-        <div class="section">
-            <h2>Image to ASCII</h2>
-            <input type="file" id="imageInput" accept="image/*">
-            <button onclick="convertImage()">Convert Image</button>
-            <pre id="asciiImageOutput"></pre>
+    <!-- Image to ASCII -->
+    <section class="card">
+        <h2>Image to ASCII</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="controls">
+            <button onclick="convertImage()">Convert</button>
+            <button onclick="downloadImage()">Download</button>
         </div>
+        <div class="output" id="asciiImageOutput"></div>
+    </section>
+</div>
 
-        <div class="footer">
-            <p>AsciiX - Inspired by asciiart.eu</p>
-        </div>
-    </div>
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

@@ -1,50 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AsciiX - Ascii Generator</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>AsciiX - Image to Circle ASCII Art</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    #uploadBox {
+      width: 300px;
+      height: 150px;
+      border: 2px dashed #aaa;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+      cursor: pointer;
+      background: white;
+      transition: 0.3s;
+    }
+
+    #uploadBox:hover {
+      border-color: #444;
+    }
+
+    #asciiContainer {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      overflow: hidden;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    #asciiOutput {
+      font-family: monospace;
+      white-space: pre;
+      line-height: 1; /* THE FIX */
+      font-size: clamp(3px, 1vw, 10px);
+      color: black;
+      user-select: text;
+    }
+
+    input {
+      display: none;
+    }
+
+    .btn-container {
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      background: black;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background: #444;
+    }
+  </style>
 </head>
+
 <body>
-<div class="theme-toggle">
-    <label>
-        <input type="checkbox" id="themeSwitch"> Dark Mode
-    </label>
-</div>
 
-<div class="container">
-    <h1>AsciiX - Ascii Generator</h1>
+  <h1>AsciiX — Image to Circle ASCII Art</h1>
 
-    <!-- Text to ASCII -->
-    <section class="card">
-        <h2>Text to ASCII</h2>
-        <textarea id="textInput" placeholder="Enter text here..."></textarea>
-        <div class="controls">
-            <select id="fontSelect">
-                <option value="standard">Standard</option>
-                <option value="block">Block</option>
-                <option value="slant">Slant</option>
-                <option value="big">Big</option>
-            </select>
-            <button onclick="convertText()">Convert</button>
-            <button onclick="downloadText()">Download</button>
-        </div>
-        <div class="output" id="asciiTextOutput"></div>
-    </section>
+  <label id="uploadBox" for="imageInput">Click to upload an image</label>
+  <input type="file" id="imageInput" accept="image/*">
 
-    <!-- Image to ASCII -->
-    <section class="card">
-        <h2>Image to ASCII</h2>
-        <input type="file" id="imageInput" accept="image/*">
-        <div class="controls">
-            <button onclick="convertImage()">Convert</button>
-            <button onclick="downloadImage()">Download</button>
-        </div>
-        <div class="output" id="asciiImageOutput"></div>
-    </section>
-</div>
+  <div id="asciiContainer">
+    <pre id="asciiOutput"></pre>
+  </div>
 
-<script src="script.js"></script>
+  <div class="btn-container">
+    <button class="btn" id="downloadTxt">Download TXT</button>
+    <button class="btn" id="downloadPng">Download PNG</button>
+  </div>
+
+  <script>
+    const asciiChars = "@#%*+=-:. ";
+    const input = document.getElementById("imageInput");
+    const asciiOutput = document.getElementById("asciiOutput");
+
+    let asciiGenerated = "";
+
+    input.addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => generateASCII(img);
+    });
+
+    function generateASCII(img) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const asciiWidth = 180;
+      const asciiHeight = Math.floor(img.height / (img.width / asciiWidth));
+
+      canvas.width = asciiWidth;
+      canvas.height = asciiHeight;
+
+      ctx.drawImage(img, 0, 0, asciiWidth, asciiHeight);
+
+      const imgData = ctx.getImageData(0, 0, asciiWidth, asciiHeight).data;
+
+      let asciiText = "";
+      const centerX = asciiWidth / 2;
+      const centerY = asciiHeight / 2;
+      const radius = asciiWidth / 2;
+
+      for (let y = 0; y < asciiHeight; y++) {
+        for (let x = 0; x < asciiWidth; x++) {
+
+          const dx = x - centerX;
+          const dy = y - centerY;
+          if (dx * dx + dy * dy > radius * radius) {
+            asciiText += " ";
+            continue;
+          }
+
+          const idx = (y * asciiWidth + x) * 4;
+          const r = imgData[idx];
+          const g = imgData[idx + 1];
+          const b = imgData[idx + 2];
+
+          const brightness = (r + g + b) / 3;
+          const charIndex = Math.floor((brightness / 255) * (asciiChars.length - 1));
+
+          asciiText += asciiChars[charIndex];
+        }
+        asciiText += "\n";
+      }
+
+      asciiOutput.textContent = asciiText;
+      asciiGenerated = asciiText;
+    }
+
+    // DOWNLOAD TXT
+    document.getElementById("downloadTxt").onclick = function () {
+      if (!asciiGenerated) return alert("Generate ASCII first.");
+      const blob = new Blob([asciiGenerated], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "AsciiX_Output.txt";
+      a.click();
+    };
+
+    // DOWNLOAD PNG — matches preview perfectly now
+    document.getElementById("downloadPng").onclick = function () {
+      if (!asciiGenerated) return alert("Generate ASCII first.");
+
+      const lines = asciiGenerated.split("\n").filter(l => l.trim().length > 0);
+
+      const fontSize = 10;
+      const font = `${fontSize}px monospace`;
+      const charW = fontSize * 0.6;
+      const charH = fontSize * 1; 
+
+      const textWidth = Math.max(...lines.map(l => l.length)) * charW;
+      const textHeight = lines.length * charH;
+
+      const padding = 20;
+      const diameter = Math.max(textWidth, textHeight) + padding * 2;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = diameter;
+      canvas.height = diameter;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, diameter, diameter);
+
+      ctx.beginPath();
+      ctx.arc(diameter / 2, diameter / 2, diameter / 2, 0, Math.PI * 2);
+      ctx.clip();
+
+      ctx.font = font;
+      ctx.fillStyle = "#000";
+      ctx.textBaseline = "top";
+
+      const startX = (diameter - textWidth) / 2;
+      const startY = (diameter - textHeight) / 2;
+
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], startX, startY + i * charH);
+      }
+
+      const url = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "AsciiX_Circle.png";
+      link.click();
+    };
+  </script>
+
 </body>
+
 </html>

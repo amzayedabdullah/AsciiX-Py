@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
-from PIL import Image
+from PIL import Image, ImageOps
 import os, uuid
 from pyfiglet import Figlet
 
@@ -9,7 +9,8 @@ CORS(app)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-ASCII_CHARS = ["@", "#", "S", "%", "?", "*", "+", ";", ":", ",", "."]
+# Use your preferred ASCII characters from dark to light
+ASCII_CHARS = ["@", "#", "$", "%", "&", "*", "+", "=", "-", ":", "."]
 
 @app.route("/api/text-to-ascii", methods=["POST"])
 def text_to_ascii():
@@ -27,11 +28,19 @@ def resize_image(image, new_width=100):
     return image.resize((new_width, new_height))
 
 def grayify(image):
-    return image.convert("L")
+    return ImageOps.grayscale(image)
 
-def pixels_to_ascii(image):
+def pixels_to_ascii(image, threshold=255):
     pixels = image.getdata()
-    return "".join([ASCII_CHARS[pixel//25] for pixel in pixels])
+    ascii_str = ""
+    for pixel in pixels:
+        # Skip very light pixels to preserve shape
+        if pixel < threshold:
+            index = pixel * (len(ASCII_CHARS) - 1) // 255
+            ascii_str += ASCII_CHARS[index]
+        else:
+            ascii_str += " "  # preserve empty/transparent areas
+    return ascii_str
 
 @app.route("/api/image-to-ascii", methods=["POST"])
 def image_to_ascii():
@@ -42,15 +51,19 @@ def image_to_ascii():
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
-    image = Image.open(filepath)
-    image = resize_image(image, new_width=120)
-    image = grayify(image)
-    ascii_str = pixels_to_ascii(image)
-    width = image.width
-    ascii_lines = [ascii_str[i:i+width] for i in range(0, len(ascii_str), width)]
-    ascii_art = "\n".join(ascii_lines)
+    try:
+        image = Image.open(filepath)
+        width = int(request.form.get("width", 100))
+        image = resize_image(image, new_width=width)
+        image = grayify(image)
+        ascii_str = pixels_to_ascii(image)
+        ascii_lines = [ascii_str[i:i+image.width] for i in range(0, len(ascii_str), image.width)]
+        ascii_art = "\n".join(ascii_lines)
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+    finally:
+        os.remove(filepath)
 
-    os.remove(filepath)
     return ascii_art, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
 if __name__ == "__main__":
